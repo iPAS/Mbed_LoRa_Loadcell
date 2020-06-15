@@ -1,0 +1,15 @@
+
+# Default Build Directory
+BUILD/*
+
+
+# Eclipse Project Files
+.cproject
+.project
+.pydevproject
+
+
+# Generated
+Makefile
+GettingStarted.html
+
