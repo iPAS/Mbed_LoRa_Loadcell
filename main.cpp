@@ -34,6 +34,11 @@ Adafruit_SSD1306_I2c gOled2(gI2C, P_5, SSD_I2C_ADDRESS, 64, 128);
 Serial uart(UART_TX, UART_RX, NULL, 115200);
 
 
+// https://os.mbed.com/users/megrootens/code/HX711/
+// https://os.mbed.com/users/jmiller322/code/SmartCrutches//file/d5e36ee82984/main.cpp/
+Hx711 loadcell(P_5, P_6, 0, 0.005, 128);
+
+
 int main()
 {
     uint16_t x = 0;
@@ -48,10 +53,14 @@ int main()
         // led = 1;
         ThisThread::sleep_for(BLINKING_RATE_MS);
 
+        float f = loadcell.read();
+
         gOled2.clearDisplay();
-        gOled2.printf("%u\r", x);
+        gOled2.printf("%u: %.2f\r", x, f);
         gOled2.display();
 
-        uart.printf("%u\r\n", x++);
+        uart.printf("%u: %.2f\r\n", x, f);
+
+        x++;
     }
 }
