@@ -36,7 +36,10 @@ Serial uart(UART_TX, UART_RX, NULL, 115200);
 
 // https://os.mbed.com/users/megrootens/code/HX711/
 // https://os.mbed.com/users/jmiller322/code/SmartCrutches//file/d5e36ee82984/main.cpp/
-Hx711 loadcell(P_5, P_6, 0, 0.005, 128);
+// https://learn.sparkfun.com/tutorials/load-cell-amplifier-hx711-breakout-hookup-guide
+// https://www.thaieasyelec.com/article-wiki/review-product-article/how-to-use-load-cell-and-hx711-amplifier-module.html
+// https://www.thaieasyelec.com/media/wysiwyg/blog/30.png
+Hx711 loadcell(P_8, P_9, 0, 0.005, 128);
 
 
 int main()
