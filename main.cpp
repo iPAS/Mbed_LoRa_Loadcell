@@ -5,6 +5,7 @@
 
 #include "mbed.h"
 #include "Adafruit_SSD1306.h"
+#include "Hx711.h"
 
 
 // Blinking rate in milliseconds
