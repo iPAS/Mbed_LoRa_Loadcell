@@ -28,6 +28,11 @@ I2C           gI2C(I2C_SDA, I2C_SCL);
 Adafruit_SSD1306_I2c gOled2(gI2C, P_5, SSD_I2C_ADDRESS, 64, 128);
 
 
+// https://os.mbed.com/handbook/Serial
+// https://os.mbed.com/docs/mbed-os/v5.15/apis/serial.html
+Serial uart(UART_TX, UART_RX, NULL, 115200);
+
+
 int main()
 {
     uint16_t x = 0;
@@ -43,7 +48,9 @@ int main()
         ThisThread::sleep_for(BLINKING_RATE_MS);
 
         gOled2.clearDisplay();
-        gOled2.printf("%u\r", x++);
+        gOled2.printf("%u\r", x);
         gOled2.display();
+
+        uart.printf("%u\r\n", x++);
     }
 }
