@@ -13,3 +13,5 @@ BUILD/*
 Makefile
 GettingStarted.html
 
+.lock/
+
