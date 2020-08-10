@@ -1,0 +1,4 @@
+#!/bin/bash
+
+mbed deploy
+
