@@ -7,6 +7,7 @@
 #include "Adafruit_SSD1306.h"
 #include "Hx711.h"
 #include "ADS1231.h"
+#include "ADS1220.h"
 
 
 // Blinking rate in milliseconds
@@ -44,7 +45,8 @@ Serial uart(UART_TX, UART_RX, NULL, 115200);
  * https://www.thaieasyelec.com/article-wiki/review-product-article/how-to-use-load-cell-and-hx711-amplifier-module.html
  * https://www.thaieasyelec.com/media/wysiwyg/blog/30.png
  ******************************************************************************/
-Hx711 loadcell_hx711(P_8, P_9, 0, 0.005, 128);  // Hx711(PinName pin_sck, PinName pin_dt, int offset, float scale, uint8_t gain = 128)
+// Hx711 loadcell_hx711(P_8, P_9, -68880, .0001445, 128);  // Hx711(PinName pin_sck, PinName pin_dt, int offset, float scale, uint8_t gain = 128)
+Hx711 loadcell_hx711(P_8, P_9, 1300, .0002936, 64);  // Hx711(PinName pin_sck, PinName pin_dt, int offset, float scale, uint8_t gain = 128)
 Ticker hx711_ticker;
 struct 
 {
@@ -60,6 +62,7 @@ void hx711_read(void)
 
 void hx711_init(void)
 {
+    // loadcell_hx711.set_scale();
     // loadcell_hx711.set_offset(124);
     hx711_ticker.attach(&hx711_read, 1);
 }
@@ -72,6 +75,7 @@ void hx711_init(void)
  ******************************************************************************/
 ADS1231  loadcell_ads1232(P_25, P_29);
 Ticker ads1232_ticker;
+const float ADS1232_CAL_MASS = .031;  // 31g
 struct 
 {
     ADS1231::ADS1231_status_t status;
@@ -82,7 +86,7 @@ struct
 
 void ads1232_read(void) {
     ads1232_sample.status          = loadcell_ads1232.ADS1231_ReadRawData(&ads1232_sample.data, 4);
-    ads1232_sample.calculated_mass = loadcell_ads1232.ADS1231_CalculateMass(&ads1232_sample.data, 1.0, ADS1231::ADS1231_SCALE_kg);
+    ads1232_sample.calculated_mass = loadcell_ads1232.ADS1231_CalculateMass(&ads1232_sample.data, ADS1232_CAL_MASS, ADS1231::ADS1231_SCALE_g);
     ads1232_sample.calculated_volt = loadcell_ads1232.ADS1231_CalculateVoltage(&ads1232_sample.data, 5.0);
 }
 
@@ -96,14 +100,14 @@ void ads1232_init(void)
     {
         uart.printf("ADS1232 fail on power-down\r\n");
     }
-    
+
     sts = loadcell_ads1232.ADS1231_Reset();
     if (sts == ADS1231::ADS1231_status_t::ADS1231_FAILURE)
     {
         uart.printf("ADS1232 fail on reset\r\n");
     }
     wait(1);
- 
+
     /** CALIBRATION time start!  **/
     // 1. REMOVE THE MASS ON THE LOAD CELL ( ALL LEDs OFF ). Read data without any mass on the load cell
     // aux = myWeightSensor.ADS1231_ReadData_WithoutMass ( &myData, 4 );
@@ -113,7 +117,63 @@ void ads1232_init(void)
     // Calculating the tare weight ( JUST LED3 ON )
     // aux = myWeightSensor.ADS1231_SetAutoTare ( ADS1231::ADS1231_SCALE_kg, &myData, 5 );
 
+/*     loadcell_ads1232.ADS1231_ReadData_WithoutMass(&ads1232_sample.data, 4);
+    uart.printf("ADS1232: .myRawValue_WithoutCalibratedMass > %f\r\n", ads1232_sample.data.myRawValue_WithoutCalibratedMass);
+    uart.printf("ADS1232: please put a calibrated mass on the scale ...");
+    wait(1);
+    uart.printf(" 3 ");
+    wait(1);
+    uart.printf(" 2 ");
+    wait(1);
+    uart.printf(" 1\r\n");
+    wait(1);
+    loadcell_ads1232.ADS1231_ReadData_WithCalibratedMass(&ads1232_sample.data, 4);
+    uart.printf("ADS1232: .myRawValue_WithCalibratedMass > %f\r\n", ads1232_sample.data.myRawValue_WithCalibratedMass);
+    uart.printf("ADS1232: please remove the calibrated mass before taring ...");
+    wait(1);
+    uart.printf(" 3 ");
+    wait(1);
+    uart.printf(" 2 ");
+    wait(1);
+    uart.printf(" 1\r\n");
+    wait(1);
+    loadcell_ads1232.ADS1231_SetAutoTare(ADS1232_CAL_MASS, ADS1231::ADS1231_SCALE_g, &ads1232_sample.data, 4);
+    uart.printf("ADS1232: .myRawValue_TareWeight > %f\r\n", ads1232_sample.data.myRawValue_TareWeight);
+ */
+
+    ads1232_sample.data.myRawValue_WithoutCalibratedMass = 8385827;
+    ads1232_sample.data.myRawValue_WithCalibratedMass = 8590153;  // @31g calibrated mass
+    ads1232_sample.data.myRawValue_TareWeight = -0.025879;
+
     ads1232_ticker.attach(&ads1232_read, 1);  // the address of the function to be attached ( readDATA ) and the interval ( 0.5s ) ( JUST LED4 BLINKING )
+}
+
+
+/******************************************************************************
+ * ADS1220
+ *
+ * https://os.mbed.com/users/sandeepmalladi/code/ADS1220/
+ ******************************************************************************/
+ADS1220 loadcell_ads1220(P_13, P_12, P_14, P_15);  //(PinName mosi, PinName miso, PinName sclk, PinName cs)
+Ticker ads1220_ticker;
+struct 
+{
+    unsigned int data;
+    float mass;
+} ads1220_sample;
+
+void ads1220_read(void)
+{
+    ads1220_sample.data = loadcell_ads1220.ReadData();
+}
+
+void ads1220_init(void)
+{
+    loadcell_ads1220.SendResetCommand();
+    wait(0.5);
+    loadcell_ads1220.Config();
+    wait(0.5);
+    // ads1220_ticker.attach(&ads1220_read, 1);
 }
 
 
@@ -130,6 +190,8 @@ int main()
 
     hx711_init();
     ads1232_init();
+    ads1220_init();
+
 
     // wait(3);
     while (true) {
@@ -149,14 +211,15 @@ int main()
         if (ads1232_sample.status == ADS1231::ADS1231_status_t::ADS1231_FAILURE)
             uart.printf("ADS1232 fail on readRaw()\r\n");
         else
-            uart.printf("ADS1232: raw=%ld  mass=%0.5fkg voltage=%0.5fmV\r\n",
+            uart.printf("ADS1232: raw=%ld  mass=%.2f voltage=%0.2fmV\r\n",
                 (uint32_t)ads1232_sample.data.myRawValue,
                 ads1232_sample.calculated_mass.myMass, 
                 ads1232_sample.calculated_volt.myVoltage * 1000);
 
-
-        
-
+/*
+        ads1220_read();  // ReadData() NOT allowed in ISR context of Ticker
+        uart.printf("ADS1220: raw=%ld mass=%.2f\r\n", ads1220_sample.data, 0);
+  */
 
         x++;
     }
