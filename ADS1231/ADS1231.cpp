@@ -476,7 +476,7 @@ ADS1231::Vector_voltage_t  ADS1231::ADS1231_CalculateVoltage ( Vector_count_t* m
     
     x   =    myNewRawData->myRawValue;
     B   =    ( 16777216.0 - 1.0 );
-    A   =    128.0;
+    A   =    128.0;  // PGA
 
 
 
