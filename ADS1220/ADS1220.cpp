@@ -19,61 +19,61 @@ ADS1220::ADS1220(PinName mosi, PinName miso, PinName sclk,PinName cs):
     _device.format(8,1);
 }
 
-void ADS1220::AssertCS( int fAssert)
+void ADS1220::AssertCS(bool fAssert)
 {
-   if (fAssert)
-         nCS_ = 1;
-   else
-         nCS_ = 0; 
-      
+    if (fAssert)
+    {
+        nCS_ = 0;
+        nCS_ = 1;
+        nCS_ = 0;
+    }
+    else
+    {
+        nCS_ = 1;
+    }
 }
 
 // ADS1220 Initial Configuration
 void ADS1220::Config(void)
 {
-    unsigned Temp;
-      ReadRegister(ADS1220_0_REGISTER, 0x01, &Temp);
-   
-  // clear prev value;
-    Temp &= 0x00;
-    Temp |= (ADS1220_MUX_2_3 | ADS1220_GAIN_128);//ADS1220_GAIN_128);
-   
-    // write the register value containing the new value back to the ADS
-    WriteRegister(ADS1220_0_REGISTER, 0x01, &Temp);
-   
-    ReadRegister(ADS1220_1_REGISTER, 0x01, &Temp);   
-  // clear prev DataRate code;
-    Temp &= 0x00;
-    Temp |= (ADS1220_DR_20 | ADS1220_CC);      // Set default start mode to 600sps and continuous conversions
-   
-  // write the register value containing the new value back to the ADS
-    WriteRegister(ADS1220_1_REGISTER, 0x01, &Temp);
-    
-    //    ADS1220WriteRegister(ADS1220_2_REGISTER, 0x01, 0x00000000);
-    ReadRegister(ADS1220_2_REGISTER, 0x01, &Temp);
-    
-  // clear prev DataRate code;
-    Temp &= 0x00;
-    Temp |= (ADS1220_VREF_EX_DED | ADS1220_REJECT_BOTH);      // Set Internal Vref as 2.048 V
-   
-    // write the register value containing the new value back to the ADS
-    WriteRegister(ADS1220_2_REGISTER, 0x01, &Temp);
+    unsigned reg;
+
+    // Setting from page-59 of paper SBAS501C.pdf
+    // REGISTER SETTING DESCRIPTION
+    // 00h      3Eh     AINP = AIN1, AINN = AIN2, gain = 128, PGA enabled
+    // 01h      04h     DR = 20 SPS, normal mode, continuous conversion mode
+    // 02h      98h     External reference (REFP1, REFN1), simultaneous 50-Hz and 60-Hz rejection, PSW = 1
+    // 03h      00h     No IDACs used
+
+    ReadRegister(ADS1220_0_REGISTER, 0x01, &reg);
+    reg &= 0x00;  // clear prev value;
+    reg |= (ADS1220_MUX_1_2 | ADS1220_GAIN_128);  //ADS1220_GAIN_128);
+    WriteRegister(ADS1220_0_REGISTER, 0x01, &reg);  // write the register value containing the new value back to the ADS
+
+    ReadRegister(ADS1220_1_REGISTER, 0x01, &reg);
+    reg &= 0x00;
+    reg |= (ADS1220_DR_20 | ADS1220_CC);  // Set default start mode to 20sps and continuous conversions
+    WriteRegister(ADS1220_1_REGISTER, 0x01, &reg);
+
+    ReadRegister(ADS1220_2_REGISTER, 0x01, &reg);
+    reg &= 0x00;
+    reg |= (ADS1220_VREF_EX_AIN | ADS1220_REJECT_BOTH | ADS1220_PSW_SW);
+    WriteRegister(ADS1220_2_REGISTER, 0x01, &reg);
 }
 
 
 void ADS1220::SendByte(unsigned char Value)
 {
- 
     _device.write(Value);
 }
 
 
 unsigned int ADS1220::ReceiveByte(void)
 {
-  unsigned int readvalue;
-  readvalue =  _device.write(0x00);
+    unsigned int readvalue;
+    readvalue = _device.write(0x00);
 
-  return readvalue;
+    return readvalue;
 }
 
 /*
@@ -86,7 +86,7 @@ unsigned int ADS1220::ReadData(void)
    
       
    // assert CS to start transfer
-    AssertCS(1);
+    AssertCS(true);
 
    // send the command byte
    SendByte(ADS1220_CMD_RDATA);
@@ -111,7 +111,7 @@ unsigned int ADS1220::ReadData(void)
    
 #endif
    // de-assert CS
-   AssertCS(0);
+   AssertCS(false);
    return Data;
 }
 
@@ -120,7 +120,7 @@ void ADS1220::ReadRegister(int StartAddress, int NumRegs, unsigned * pData)
    int i;
 
     // assert CS to start transfer
-        AssertCS(1);
+        AssertCS(true);
    
     // send the command byte
     SendByte(ADS1220_CMD_RREG | (((StartAddress<<2) & 0x0c) |((NumRegs-1)&0x03)));
@@ -132,7 +132,7 @@ void ADS1220::ReadRegister(int StartAddress, int NumRegs, unsigned * pData)
     }
    
     // de-assert CS
-        AssertCS(0);
+        AssertCS(false);
     
     return;
 }
@@ -142,7 +142,7 @@ void ADS1220::WriteRegister(int StartAddress, int NumRegs, unsigned * pData)
     int i;
    
     // assert CS to start transfer
-    AssertCS(1);
+    AssertCS(true);
    
     // send the command byte
     SendByte(ADS1220_CMD_WREG | (((StartAddress<<2) & 0x0c) |((NumRegs-1)&0x03)));
@@ -154,7 +154,7 @@ void ADS1220::WriteRegister(int StartAddress, int NumRegs, unsigned * pData)
     }
    
     // de-assert CS
-    AssertCS(0);
+    AssertCS(false);
    
     return;
 }
@@ -162,13 +162,13 @@ void ADS1220::WriteRegister(int StartAddress, int NumRegs, unsigned * pData)
 void ADS1220::SendResetCommand(void)
 {
     // assert CS to start transfer
-    AssertCS(1);
+    AssertCS(true);
    
     // send the command byte
     SendByte(ADS1220_CMD_RESET);
    
     // de-assert CS
-    AssertCS(0);
+    AssertCS(false);
    
     return;
 }
@@ -176,13 +176,13 @@ void ADS1220::SendResetCommand(void)
 void ADS1220::SendStartCommand(void)
 {
     // assert CS to start transfer
-    AssertCS(1);
+    AssertCS(true);
    
     // send the command byte
     SendByte(ADS1220_CMD_SYNC);
    
     // de-assert CS
-    AssertCS(0);
+    AssertCS(false);
      
     return;
 }
@@ -190,13 +190,13 @@ void ADS1220::SendStartCommand(void)
 void ADS1220::SendShutdownCommand(void)
 {
     // assert CS to start transfer
-    AssertCS(1);
+    AssertCS(true);
    
     // send the command byte
     SendByte(ADS1220_CMD_SHUTDOWN);
    
     // de-assert CS
-    AssertCS(0);
+    AssertCS(false);
      
     return;
 }

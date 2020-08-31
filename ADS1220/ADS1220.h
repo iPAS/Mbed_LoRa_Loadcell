@@ -171,7 +171,7 @@ public:
         /* Low Level ADS1220 Device Functions */
         void Init(void);                         // Device intialization
         int WaitForDataReady(int Timeout);       // DRDY polling 
-        void AssertCS(int fAssert);              // Assert/deassert CS
+        void AssertCS(bool fAssert);              // Assert/deassert CS
         void SendByte(unsigned char cData );     // Send byte to the ADS1220
         unsigned int ReceiveByte(void);          // Receive byte from the ADS1220
 
