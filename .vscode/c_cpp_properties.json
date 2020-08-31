@@ -664,6 +664,11 @@
             ],
             "includePath": [
                 "${workspaceFolder}/*",
+                
+                ".${workspaceFolder}/HX711/*",
+                ".${workspaceFolder}/ADS1231/*",
+                ".${workspaceFolder}/ADS1220/*",
+                
                 ".${workspaceFolder}/mbed-os/*",
                 ".${workspaceFolder}/mbed-os/cmsis/*",
                 ".${workspaceFolder}/mbed-os/cmsis/TARGET_CORTEX_M/*",
