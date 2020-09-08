@@ -59,7 +59,7 @@ Serial uart(UART_TX, UART_RX, NULL, 115200);
 #define HX711_PGA 64
 #define HX711_VREF 5.
 #define HX711_CAL_OFFSET    -7800  // raw, without weight
-#define HX711_CAL_WEIGHT    100  // 100g
+#define HX711_CAL_WEIGHT    100.  // 100g
 #define HX711_CAL_RAW       326800  // of the weight 100g
 #define HX711_CAL_SCALE     (HX711_CAL_WEIGHT / (float)(HX711_CAL_RAW - HX711_CAL_OFFSET))
 Hx711 loadcell_hx711(P_8, P_9, HX711_CAL_OFFSET, HX711_CAL_SCALE, HX711_PGA);  // Hx711(PinName pin_sck, PinName pin_dt, int offset, float scale, uint8_t gain = 128)
@@ -67,7 +67,7 @@ Hx711 loadcell_hx711(P_8, P_9, HX711_CAL_OFFSET, HX711_CAL_SCALE, HX711_PGA);  /
 Ticker hx711_ticker;
 struct
 {
-    uint32_t raw;
+    int32_t raw;
     float volt;
     float mass;
 } hx711_sample;
@@ -98,7 +98,7 @@ void hx711_init(void)
 
 #define ADS1232_PGA 128
 #define ADS1232_VREF 5.
-#define ADS1232_CAL_MASS .100  // 100g
+#define ADS1232_CAL_MASS 0.100  // 100g
 ADS1231  loadcell_ads1232(P_25, P_29);  // ADS1231::ADS1231 ( PinName SCLK, PinName DOUT )
 Ticker ads1232_ticker;
 struct 
@@ -198,19 +198,25 @@ void ads1232_init(void)
 #ifdef __ADS1220__
 
 #define ADS1220_PGA 128
-#define ADS1220_VREF 5.
+#define ADS1220_VREF 5. 
+#define ADS1220_CAL_OFFSET    -5500  // raw, without weight
+#define ADS1220_CAL_WEIGHT    100.  // 100g
+#define ADS1220_CAL_RAW       320500  // of the weight 100g
+#define ADS1220_CAL_SCALE     (ADS1220_CAL_WEIGHT / (float)(ADS1220_CAL_RAW - ADS1220_CAL_OFFSET))
 ADS1220 loadcell_ads1220(P_13, P_12, P_14, P_15);  //(PinName mosi, PinName miso, PinName sclk, PinName cs)
 InterruptIn pin_drdy(P_20);
 Ticker ads1220_ticker;
 struct
 {
     volatile bool available;
-    uint32_t raw;
+    int32_t offset;
+    float scale;
+    int32_t raw;
     float volt;
     float mass;
-} ads1220_sample = { false, };
+} ads1220_sample = { false, ADS1220_CAL_OFFSET, ADS1220_CAL_SCALE, };
 
-void ads1220_read(void)
+void ads1220_data_ready(void)
 {
     // ads1220_sample.raw       = loadcell_ads1220.ReadData();
     // ads1220_sample.volt      = ads1220_sample.raw * LSB_SIZE(ADS1220_PGA, ADS1220_VREF);
@@ -220,13 +226,21 @@ void ads1220_read(void)
 void ads1220_init(void)
 {
     // pin_drdy.rise(&ads1220_read);
-    pin_drdy.fall(&ads1220_read);
+    pin_drdy.fall(&ads1220_data_ready);  // Interrupt routine of End-of-conversion acknowledgement
 
     loadcell_ads1220.SendResetCommand();
     ThisThread::sleep_for(1);
     loadcell_ads1220.Config();
     ThisThread::sleep_for(1);
     loadcell_ads1220.SendStartCommand();
+}
+
+void ads1220_read(void)
+{
+    ads1220_sample.raw       = loadcell_ads1220.ReadData();
+    ads1220_sample.volt      = ads1220_sample.raw * LSB_SIZE(ADS1220_PGA, ADS1220_VREF);
+    ads1220_sample.mass      = (ads1220_sample.raw - ads1220_sample.offset) * ads1220_sample.scale;
+    ads1220_sample.available = false;
 }
 
 #endif
@@ -289,12 +303,11 @@ int main()
         #ifdef __ADS1220__
         if (ads1220_sample.available)
         {
-            ads1220_sample.raw       = loadcell_ads1220.ReadData();
-            ads1220_sample.volt      = ads1220_sample.raw * LSB_SIZE(ADS1220_PGA, ADS1220_VREF);
-            ads1220_sample.available = false;
-            uart.printf("ADS1220: raw=%ld volt=%.3fmV\r\n",
+            ads1220_read();
+            uart.printf("ADS1220: raw=%ld volt=%fmV mass=%.3fg\r\n",
                 ads1220_sample.raw,
-                ads1220_sample.volt * 1000
+                ads1220_sample.volt * 1000,
+                ads1220_sample.mass
                 );
         }
         #endif
