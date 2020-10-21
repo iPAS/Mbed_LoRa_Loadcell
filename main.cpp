@@ -10,10 +10,20 @@
 #include "ADS1220.h"
 
 
+/******************************************************************************
+ * Definitions
+ ******************************************************************************/
+// #define __HX711__
+#define __ADS1232__
+// #define __ADS1220__
+
+#define TEST_AMOUNT 20
+#define LSB_SIZE(PGA, VREF) ((VREF/PGA) / (((long int)1<<23)))
+
 // Blinking rate in milliseconds
-#define BLINKING_RATE_MS     1000
+#define BLINKING_RATE_MS 1000
 DigitalOut led(LED3);  // Initialise the digital pin LED1 as an output
-uint16_t sample_count = 0;
+volatile static uint16_t sample_count = 0;
 
 // SSD1306 adapted from Adafruit's library
 // https://os.mbed.com/users/nkhorman/code/Adafruit_GFX/
@@ -35,16 +45,17 @@ Adafruit_SSD1306_I2c gOled2(gI2C, P_5, SSD_I2C_ADDRESS, 64, 128);
 // https://os.mbed.com/docs/mbed-os/v5.15/apis/serial.html
 Serial uart(UART_TX, UART_RX, NULL, 115200);
 
-
-/******************************************************************************
- * Definitions
- ******************************************************************************/
-// #define __HX711__
-#define __ADS1232__
-// #define __ADS1220__
-
-#define TEST_AMOUNT 20
-#define LSB_SIZE(PGA, VREF) ((VREF/PGA) / (((long int)1<<23)))
+static void on_uart_receive(void)
+{
+    char buf[10];
+    while (uart.readable())
+    {
+        // __disable_irq();
+        uart.read(buf, 10);
+        // __enable_irq();
+    }
+    sample_count = 0;
+}
 
 
 /******************************************************************************
@@ -267,11 +278,14 @@ void ads1220_read(void)
  ******************************************************************************/
 int main()
 {
-    ThisThread::sleep_for(1000);
+    ThisThread::sleep_for(1000);  // Delay for showing splash
+
     gOled2.clearDisplay();
     gOled2.printf("%ux%u OLED Display\r\n", gOled2.width(), gOled2.height());
     gOled2.display();
     ThisThread::sleep_for(1000);
+
+    uart.attach(&on_uart_receive, Serial::RxIrq);  // Bind with on-receiving callback function.
 
 
     #ifdef __HX711__
@@ -295,7 +309,7 @@ int main()
         if (sample_count > TEST_AMOUNT+1)
             continue;
         else
-        if (sample_count > TEST_AMOUNT)
+        if (++sample_count > TEST_AMOUNT)
         {
             gOled2.printf("\r\n   -- Finish --\r\n");
             gOled2.display();
@@ -303,7 +317,6 @@ int main()
             continue;
         }
 
-        sample_count++;
         gOled2.clearDisplay();
         gOled2.setTextCursor(0, 0);
 
