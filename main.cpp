@@ -13,8 +13,8 @@
 /******************************************************************************
  * Definitions
  ******************************************************************************/
-// #define __HX711__
-#define __ADS1232__
+#define __HX711__
+// #define __ADS1232__
 // #define __ADS1220__
 
 #define TEST_AMOUNT 20
@@ -281,6 +281,8 @@ void ads1220_read(void)
  ******************************************************************************/
 int main()
 {
+    float raw = 0;
+
     ThisThread::sleep_for(1000);  // Delay for showing splash
 
     gOled2.clearDisplay();
@@ -322,6 +324,7 @@ int main()
                     uart.getc();
                 }
                 sample_count = 0;
+                raw = 0;
                 uart.printf("----------------------------------------\r\n");
             }
             #endif
@@ -330,7 +333,8 @@ int main()
         else
         if (++sample_count > TEST_AMOUNT)
         {
-            gOled2.printf("\r\n   -- Finish --\r\n");
+            gOled2.printf("\r\n   raw:%.1f\r\n", raw/TEST_AMOUNT);
+            gOled2.printf("   -- Finish --  \r\n");
             gOled2.display();
             sample_count++;
             continue;
@@ -347,6 +351,7 @@ int main()
             hx711_sample.volt * 1000,
             hx711_sample.mass
             );
+        raw += hx711_sample.raw;
         gOled2.printf("%u:HX711 %.2fg\r\n", sample_count, hx711_sample.mass);
         #endif
 
@@ -361,6 +366,7 @@ int main()
                 ads1232_sample.calculated_volt.myVoltage * 1000,
                 ads1232_sample.calculated_mass.myMass  // ADS1231::ADS1231_SCALE_g
                 );
+            raw += ads1232_sample.count.myRawValue;
             gOled2.printf("%u:1232 %.2fg\r\n", sample_count, ads1232_sample.calculated_mass.myMass);
         }
         #endif
@@ -375,6 +381,7 @@ int main()
                 ads1220_sample.volt * 1000,
                 ads1220_sample.mass
                 );
+            raw += ads1220_sample.raw;
             gOled2.printf("%u:1220 %.2fg\r\n", sample_count, ads1220_sample.mass);
         }
         #endif
