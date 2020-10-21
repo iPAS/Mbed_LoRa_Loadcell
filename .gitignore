@@ -15,3 +15,5 @@ GettingStarted.html
 
 .lock/
 
+*.log
+
