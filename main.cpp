@@ -10,10 +10,20 @@
 #include "ADS1220.h"
 
 
-// Blinking rate in milliseconds
-#define BLINKING_RATE_MS     1000
-DigitalOut led(LED3);  // Initialise the digital pin LED1 as an output
+/******************************************************************************
+ * Definitions
+ ******************************************************************************/
+// #define __HX711__
+#define __ADS1232__
+// #define __ADS1220__
 
+#define TEST_AMOUNT 20
+#define LSB_SIZE(PGA, VREF) ((VREF/PGA) / (((long int)1<<23)))
+
+// Blinking rate in milliseconds
+#define BLINKING_RATE_MS 1000
+DigitalOut led(LED3);  // Initialise the digital pin LED1 as an output
+volatile static uint16_t sample_count = 0;
 
 // SSD1306 adapted from Adafruit's library
 // https://os.mbed.com/users/nkhorman/code/Adafruit_GFX/
@@ -35,14 +45,20 @@ Adafruit_SSD1306_I2c gOled2(gI2C, P_5, SSD_I2C_ADDRESS, 64, 128);
 // https://os.mbed.com/docs/mbed-os/v5.15/apis/serial.html
 Serial uart(UART_TX, UART_RX, NULL, 115200);
 
-
-/******************************************************************************
- * Definitions
- ******************************************************************************/
-// #define __HX711__
-// #define __ADS1232__
-#define __ADS1220__
-#define LSB_SIZE(PGA, VREF) ((VREF/PGA) / (((long int)1<<23)))
+// #define UART_INTR
+#ifdef UART_INTR
+static void on_uart_receive(void)
+{
+    char buf[10];
+    while (uart.readable())
+    {
+        // __disable_irq();
+        uart.read(buf, 10);
+        // __enable_irq();
+    }
+    sample_count = 0;
+}
+#endif
 
 
 /******************************************************************************
@@ -105,18 +121,26 @@ struct
 {
     ADS1231::ADS1231_status_t status;
     ADS1231::Vector_count_t   count;
+    uint8_t num_avg;
     ADS1231::Vector_mass_t    calculated_mass;
     ADS1231::Vector_voltage_t calculated_volt;
 } ads1232_sample;
 
 void ads1232_read(void) {
-    ads1232_sample.status          = loadcell_ads1232.ADS1231_ReadRawData(&ads1232_sample.count, 4);
+    ads1232_sample.status          = loadcell_ads1232.ADS1231_ReadRawData(&ads1232_sample.count, ads1232_sample.num_avg);
     ads1232_sample.calculated_volt = loadcell_ads1232.ADS1231_CalculateVoltage(&ads1232_sample.count, ADS1232_VREF);
     ads1232_sample.calculated_mass = loadcell_ads1232.ADS1231_CalculateMass(&ads1232_sample.count, ADS1232_CAL_MASS, ADS1231::ADS1231_SCALE_g);
 }
 
 void ads1232_init(void)
 {
+    gOled2.clearDisplay();
+    gOled2.printf("Calibrating...\r\n");
+    gOled2.display();
+
+
+    ads1232_sample.num_avg = 1;
+    uint8_t num_avg_cal = 4;
     ADS1231::ADS1231_status_t sts;
 
     // Reset and wake the ADS1232 up
@@ -144,39 +168,45 @@ void ads1232_init(void)
 
     int i;
     uart.printf("ADS1232: please remove the calibrated mass before calibration ...");
+    gOled2.printf("Remove mass...\r\n");
+    gOled2.display();
     for (i = 5; i > 0; i--)
     {
         wait(1);
-        uart.printf(" %d ", i);
+        uart.printf("%d ", i);
     }
     wait(1);
-    uart.printf("[in progress].\r\n");
+    uart.printf("[WIP].\r\n");
 
-    loadcell_ads1232.ADS1231_ReadData_WithoutMass(&ads1232_sample.count, 4);
+    loadcell_ads1232.ADS1231_ReadData_WithoutMass(&ads1232_sample.count, num_avg_cal);
     uart.printf("ADS1232: .myRawValue_WithoutCalibratedMass > %f\r\n", ads1232_sample.count.myRawValue_WithoutCalibratedMass);
 
     uart.printf("ADS1232: please put a calibrated mass %.1fg on the scale ...", ADS1232_CAL_MASS * 1000);
+    gOled2.printf("Put mass...\r\n");
+    gOled2.display();
     for (i = 10; i > 0; i--)
     {
         wait(1);
-        uart.printf(" %d ", i);
+        uart.printf("%d ", i);
     }
     wait(1);
-    uart.printf("[in progress].\r\n");
+    uart.printf("[WIP].\r\n");
 
-    loadcell_ads1232.ADS1231_ReadData_WithCalibratedMass(&ads1232_sample.count, 4);
+    loadcell_ads1232.ADS1231_ReadData_WithCalibratedMass(&ads1232_sample.count, num_avg_cal);
     uart.printf("ADS1232: .myRawValue_WithCalibratedMass > %f\r\n", ads1232_sample.count.myRawValue_WithCalibratedMass);
 
     uart.printf("ADS1232: please remove the calibrated mass before taring ...");
+    gOled2.printf("Remove mass again...\r\n");
+    gOled2.display();
     for (i = 5; i > 0; i--)
     {
         wait(1);
-        uart.printf(" %d ", i);
+        uart.printf("%d ", i);
     }
     wait(1);
-    uart.printf("[in progress].\r\n");
+    uart.printf("[WIP].\r\n");
 
-    loadcell_ads1232.ADS1231_SetAutoTare(ADS1232_CAL_MASS, ADS1231::ADS1231_SCALE_g, &ads1232_sample.count, 4);
+    loadcell_ads1232.ADS1231_SetAutoTare(ADS1232_CAL_MASS, ADS1231::ADS1231_SCALE_g, &ads1232_sample.count, num_avg_cal);
     uart.printf("ADS1232: .myRawValue_TareWeight > %f\r\n", ads1232_sample.count.myRawValue_TareWeight);
 
     // ads1232_sample.count.myRawValue_WithoutCalibratedMass = 8385827;
@@ -251,11 +281,17 @@ void ads1220_read(void)
  ******************************************************************************/
 int main()
 {
-    uint16_t x = 0;
+    ThisThread::sleep_for(1000);  // Delay for showing splash
 
     gOled2.clearDisplay();
     gOled2.printf("%ux%u OLED Display\r\n", gOled2.width(), gOled2.height());
     gOled2.display();
+    ThisThread::sleep_for(1000);
+
+    #ifdef UART_INTR
+    uart.attach(&on_uart_receive, Serial::RxIrq);  // Bind with on-receiving callback function.
+    #endif
+
 
     #ifdef __HX711__
     hx711_init();
@@ -268,23 +304,50 @@ int main()
     #endif
 
 
+    uart.printf("----------------------------------------\r\n");
+
     while (true) {
         led = !led;
-        // led = 1;
         ThisThread::sleep_for(BLINKING_RATE_MS);
 
 
+        if (sample_count > TEST_AMOUNT+1)
+        {
+            #if ! defined(UART_INTR)  // Clear 'sample_count' without using rx interrupt
+            if (uart.readable())
+            {
+                while (uart.readable())
+                {
+                    ThisThread::sleep_for(1);
+                    uart.getc();
+                }
+                sample_count = 0;
+                uart.printf("----------------------------------------\r\n");
+            }
+            #endif
+            continue;
+        }
+        else
+        if (++sample_count > TEST_AMOUNT)
+        {
+            gOled2.printf("\r\n   -- Finish --\r\n");
+            gOled2.display();
+            sample_count++;
+            continue;
+        }
+
+
         gOled2.clearDisplay();
-        gOled2.printf("%u\r", x);
-        gOled2.display();
+        gOled2.setTextCursor(0, 0);
 
 
         #ifdef __HX711__
-        uart.printf("HX711: raw=%ld volt=%.3fmV mass=%.3fg\r\n",
+        uart.printf("[%d] HX711: raw=%ld volt=%.3fmV mass=%.3fg\r\n", sample_count,
             hx711_sample.raw,
             hx711_sample.volt * 1000,
             hx711_sample.mass
             );
+        gOled2.printf("%u:HX711 %.2fg\r\n", sample_count, hx711_sample.mass);
         #endif
 
 
@@ -292,11 +355,14 @@ int main()
         if (ads1232_sample.status == ADS1231::ADS1231_status_t::ADS1231_FAILURE)
             uart.printf("ADS1232 fail on readRaw()\r\n");
         else
-            uart.printf("ADS1232: raw=%ld volt=%0.3fmV mass=%.3fg\r\n",
+        {
+            uart.printf("[%d] ADS1232: raw=%ld volt=%.3fmV mass=%.3fg\r\n", sample_count,
                 ads1232_sample.count.myRawValue,
                 ads1232_sample.calculated_volt.myVoltage * 1000,
                 ads1232_sample.calculated_mass.myMass  // ADS1231::ADS1231_SCALE_g
                 );
+            gOled2.printf("%u:1232 %.2fg\r\n", sample_count, ads1232_sample.calculated_mass.myMass);
+        }
         #endif
 
 
@@ -304,15 +370,15 @@ int main()
         if (ads1220_sample.available)
         {
             ads1220_read();
-            uart.printf("ADS1220: raw=%ld volt=%fmV mass=%.3fg\r\n",
+            uart.printf("[%d] ADS1220: raw=%ld volt=%.3fmV mass=%.3fg\r\n", sample_count,
                 ads1220_sample.raw,
                 ads1220_sample.volt * 1000,
                 ads1220_sample.mass
                 );
+            gOled2.printf("%u:1220 %.2fg\r\n", sample_count, ads1220_sample.mass);
         }
         #endif
 
-
-        x++;
+        gOled2.display();
     }
 }

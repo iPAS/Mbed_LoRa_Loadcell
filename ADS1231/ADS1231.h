@@ -186,19 +186,19 @@ public:
 
     /** It reads raw data from the device.
      */
-    ADS1231_status_t  ADS1231_ReadRawData                   ( Vector_count_t* myNewRawData, uint32_t myAverage );
+    ADS1231_status_t  ADS1231_ReadRawData                   ( Vector_count_t* myNewRawData, uint8_t num_avg );
 
     /** It reads raw data with an user-specified calibrated mass.
      */
-    ADS1231_status_t  ADS1231_ReadData_WithCalibratedMass   ( Vector_count_t* myNewRawData, uint32_t myAverage );
+    ADS1231_status_t  ADS1231_ReadData_WithCalibratedMass   ( Vector_count_t* myNewRawData, uint8_t num_avg );
 
     /** It reads raw data without any mass.
      */
-    ADS1231_status_t  ADS1231_ReadData_WithoutMass          ( Vector_count_t* myNewRawData, uint32_t myAverage );
+    ADS1231_status_t  ADS1231_ReadData_WithoutMass          ( Vector_count_t* myNewRawData, uint8_t num_avg );
 
     /** It reads raw data without any mass after the system is calibrated.
      */
-    ADS1231_status_t  ADS1231_SetAutoTare                   ( float myCalibratedMass, ADS1231_scale_t myScaleCalibratedMass, Vector_count_t* myNewRawData, float myTime );
+    ADS1231_status_t  ADS1231_SetAutoTare                   ( float myCalibratedMass, ADS1231_scale_t myScaleCalibratedMass, Vector_count_t* myNewRawData, uint8_t num_avg );
 
     /** It sets a tare weight manually.
      */
