@@ -45,6 +45,8 @@ Adafruit_SSD1306_I2c gOled2(gI2C, P_5, SSD_I2C_ADDRESS, 64, 128);
 // https://os.mbed.com/docs/mbed-os/v5.15/apis/serial.html
 Serial uart(UART_TX, UART_RX, NULL, 115200);
 
+// #define UART_INTR
+#ifdef UART_INTR
 static void on_uart_receive(void)
 {
     char buf[10];
@@ -56,6 +58,7 @@ static void on_uart_receive(void)
     }
     sample_count = 0;
 }
+#endif
 
 
 /******************************************************************************
@@ -170,10 +173,10 @@ void ads1232_init(void)
     for (i = 5; i > 0; i--)
     {
         wait(1);
-        uart.printf(" %d ", i);
+        uart.printf("%d ", i);
     }
     wait(1);
-    uart.printf("[in progress].\r\n");
+    uart.printf("[WIP].\r\n");
 
     loadcell_ads1232.ADS1231_ReadData_WithoutMass(&ads1232_sample.count, num_avg_cal);
     uart.printf("ADS1232: .myRawValue_WithoutCalibratedMass > %f\r\n", ads1232_sample.count.myRawValue_WithoutCalibratedMass);
@@ -184,10 +187,10 @@ void ads1232_init(void)
     for (i = 10; i > 0; i--)
     {
         wait(1);
-        uart.printf(" %d ", i);
+        uart.printf("%d ", i);
     }
     wait(1);
-    uart.printf("[in progress].\r\n");
+    uart.printf("[WIP].\r\n");
 
     loadcell_ads1232.ADS1231_ReadData_WithCalibratedMass(&ads1232_sample.count, num_avg_cal);
     uart.printf("ADS1232: .myRawValue_WithCalibratedMass > %f\r\n", ads1232_sample.count.myRawValue_WithCalibratedMass);
@@ -198,10 +201,10 @@ void ads1232_init(void)
     for (i = 5; i > 0; i--)
     {
         wait(1);
-        uart.printf(" %d ", i);
+        uart.printf("%d ", i);
     }
     wait(1);
-    uart.printf("[in progress].\r\n");
+    uart.printf("[WIP].\r\n");
 
     loadcell_ads1232.ADS1231_SetAutoTare(ADS1232_CAL_MASS, ADS1231::ADS1231_SCALE_g, &ads1232_sample.count, num_avg_cal);
     uart.printf("ADS1232: .myRawValue_TareWeight > %f\r\n", ads1232_sample.count.myRawValue_TareWeight);
@@ -285,7 +288,9 @@ int main()
     gOled2.display();
     ThisThread::sleep_for(1000);
 
+    #ifdef UART_INTR
     uart.attach(&on_uart_receive, Serial::RxIrq);  // Bind with on-receiving callback function.
+    #endif
 
 
     #ifdef __HX711__
@@ -303,11 +308,25 @@ int main()
 
     while (true) {
         led = !led;
-        // led = 1;
         ThisThread::sleep_for(BLINKING_RATE_MS);
 
+
         if (sample_count > TEST_AMOUNT+1)
+        {
+            #if ! defined(UART_INTR)  // Clear 'sample_count' without using rx interrupt
+            if (uart.readable())
+            {
+                while (uart.readable())
+                {
+                    ThisThread::sleep_for(1);
+                    uart.getc();
+                }
+                sample_count = 0;
+                uart.printf("----------------------------------------\r\n");
+            }
+            #endif
             continue;
+        }
         else
         if (++sample_count > TEST_AMOUNT)
         {
@@ -316,6 +335,7 @@ int main()
             sample_count++;
             continue;
         }
+
 
         gOled2.clearDisplay();
         gOled2.setTextCursor(0, 0);
