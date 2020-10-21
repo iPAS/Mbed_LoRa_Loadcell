@@ -1,5 +1,5 @@
 
-# Introducetion
+# Introduction
 
 This project is meant to test low-power embedded system over wireless communication such LoRaWAN.
 Based on [Mbed platform](https://os.mbed.com/) and 
@@ -15,12 +15,45 @@ Based on [Mbed platform](https://os.mbed.com/) and
 ![](doc/imas_cjmcu_hx711_ads1232_ads1220.png)
 
 
+# Using
+
+All helper scripts are placed in _scripts_ directory.
+* To compile code: ```scripts/compile.sh```
+* To flash firmware, it depends on your programmer:
+    * __ST-Link__: use the ```scripts/flash.sh```
+    which commands with the ST-Flash software.
+    ![](doc/stlink2.jpg)
+
+    * __SEGGER's J-Link V2__: use the ```scripts/j-flash.sh```
+    which commands with the SEGGER's J-Flash software.
+    ![](doc/segger.jpg)
+
+
 # Experiment
+
+## Design
 
 x
 
-# Note of Experience
 
-## Mbed
+## Setup
 
-- Always _import_ then _deploy_ consecutively.
+x
+
+
+## Result
+
+x
+
+
+## Conclusion
+
+x
+
+
+# Notes
+
+## Mbed Framework
+
+* After ```mbed import``` a library into the project, 
+please command ```mbed deploy``` consecutively.
