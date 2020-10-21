@@ -110,7 +110,7 @@ ADS1231::ADS1231_status_t  ADS1231::ADS1231_PowerDown   ( void )
  *
  * @details     It reads the raw data from the device.
  *
- * @param[in]    myAverage:         How many measurement we have to get and deliver the average.
+ * @param[in]    num_avg:         How many measurement we have to get and deliver the average.
  *
  * @param[out]   myNewRawData:      The new value from the device.
  *
@@ -124,7 +124,7 @@ ADS1231::ADS1231_status_t  ADS1231::ADS1231_PowerDown   ( void )
  * @pre         NaN.
  * @warning     NaN.
  */
-ADS1231::ADS1231_status_t  ADS1231::ADS1231_ReadRawData    ( Vector_count_t* myNewRawData, uint32_t myAverage )
+ADS1231::ADS1231_status_t  ADS1231::ADS1231_ReadRawData    ( Vector_count_t* myNewRawData, uint8_t num_avg )
 {
     uint32_t i           =   0;                                                 // Counter and timeout variable
     uint32_t ii          =   0;                                                 // Counter variable
@@ -134,8 +134,8 @@ ADS1231::ADS1231_status_t  ADS1231::ADS1231_ReadRawData    ( Vector_count_t* myN
 
     myNewRawData->myRawValue    =   0;                                          // Reset variable at the beginning
 
-    // Start collecting the new measurement as many as myAverage
-    for ( ii = 0; ii < myAverage; ii++ ) {
+    // Start collecting the new measurement as many as num_avg
+    for ( ii = 0; ii < num_avg; ii++ ) {
         // Reset the value
         myAuxData    =   0;
 
@@ -174,7 +174,7 @@ ADS1231::ADS1231_status_t  ADS1231::ADS1231_ReadRawData    ( Vector_count_t* myN
         myNewRawData->myRawValue   +=    myAuxData;
     }
 
-    myNewRawData->myRawValue    /=    ( float )myAverage;
+    myNewRawData->myRawValue    /=    ( float )num_avg;
 
 
 
@@ -187,11 +187,11 @@ ADS1231::ADS1231_status_t  ADS1231::ADS1231_ReadRawData    ( Vector_count_t* myN
 
 
 /**
- * @brief       ADS1231_ReadData_WithCalibratedMass ( Vector_count_t* myNewRawData, uint32_t myAverage )
+ * @brief       ADS1231_ReadData_WithCalibratedMass ( Vector_count_t* myNewRawData, uint8_t num_avg )
  *
  * @details     It reads data with a calibrated mass on the load cell.
  *
- * @param[in]    myAverage:             How many data to read.
+ * @param[in]    num_avg:             How many data to read.
  *
  * @param[out]   myNewRawData:          myRawValue_WithCalibratedMass ( ADC code taken with calibrated mass ).
  *
@@ -205,12 +205,12 @@ ADS1231::ADS1231_status_t  ADS1231::ADS1231_ReadRawData    ( Vector_count_t* myN
  * @pre         NaN.
  * @warning     NaN.
  */
-ADS1231::ADS1231_status_t  ADS1231::ADS1231_ReadData_WithCalibratedMass   ( Vector_count_t* myNewRawData, uint32_t myAverage )
+ADS1231::ADS1231_status_t  ADS1231::ADS1231_ReadData_WithCalibratedMass(Vector_count_t* myNewRawData, uint8_t num_avg)
 {
     ADS1231_status_t        aux;
 
     // Perform a new bunch of readings
-    aux  =   ADS1231_ReadRawData ( myNewRawData, myAverage );
+    aux  =   ADS1231_ReadRawData ( myNewRawData, num_avg );
 
 
     // Update the value with a calibrated mass
@@ -227,11 +227,11 @@ ADS1231::ADS1231_status_t  ADS1231::ADS1231_ReadData_WithCalibratedMass   ( Vect
 
 
 /**
- * @brief       ADS1231_ReadData_WithoutMass ( Vector_count_t* myNewRawData, uint32_t myAverage )
+ * @brief       ADS1231_ReadData_WithoutMass ( Vector_count_t* myNewRawData, uint8_t num_avg )
  *
  * @details     It reads data without any mass on the load cell.
  *
- * @param[in]    myAverage:             How many data to read.
+ * @param[in]    num_avg:             How many data to read.
  *
  * @param[out]   myNewRawData:          myRawValue_WithoutCalibratedMass ( ADC code taken without any mass ).
  *
@@ -245,12 +245,12 @@ ADS1231::ADS1231_status_t  ADS1231::ADS1231_ReadData_WithCalibratedMass   ( Vect
  * @pre         NaN.
  * @warning     NaN.
  */
-ADS1231::ADS1231_status_t  ADS1231::ADS1231_ReadData_WithoutMass   ( Vector_count_t* myNewRawData, uint32_t myAverage )
+ADS1231::ADS1231_status_t  ADS1231::ADS1231_ReadData_WithoutMass   ( Vector_count_t* myNewRawData, uint8_t num_avg )
 {
     ADS1231_status_t        aux;
 
     // Perform a new bunch of readings
-    aux  =   ADS1231_ReadRawData ( myNewRawData, myAverage );
+    aux  =   ADS1231_ReadRawData ( myNewRawData, num_avg );
 
 
     // Update the value without any mass
@@ -361,7 +361,7 @@ ADS1231::Vector_mass_t  ADS1231::ADS1231_CalculateMass ( Vector_count_t* myNewRa
  * @param[in]    myCalibratedMass:          A known value for the calibrated mass when myRawValue_WithCalibratedMass was
  *                                          calculated.
  * @param[in]    myScaleCalibratedMass:     The range of the calibrated mass ( kg, g, mg or ug ).
- * @param[in]    myTime:                    How long the auto-set lasts.
+ * @param[in]    num_avg:                    How long the auto-set lasts.
  *
  * @param[out]   myNewRawData:              myRawValue_TareWeight ( ADC code taken without any mass ).
  *
@@ -375,7 +375,7 @@ ADS1231::Vector_mass_t  ADS1231::ADS1231_CalculateMass ( Vector_count_t* myNewRa
  * @pre         NaN.
  * @warning     NaN.
  */
-ADS1231::ADS1231_status_t  ADS1231::ADS1231_SetAutoTare   ( float myCalibratedMass, ADS1231_scale_t myScaleCalibratedMass, Vector_count_t* myNewRawData, float myTime )
+ADS1231::ADS1231_status_t  ADS1231::ADS1231_SetAutoTare(float myCalibratedMass, ADS1231_scale_t myScaleCalibratedMass, Vector_count_t* myNewRawData, uint8_t num_avg)
 {
     ADS1231_status_t      aux;
     Vector_mass_t         myCalculatedMass;
@@ -384,13 +384,13 @@ ADS1231::ADS1231_status_t  ADS1231::ADS1231_SetAutoTare   ( float myCalibratedMa
 
 
     // Perform a new bunch of readings every 1 second
-    for ( i = 0; i < myTime; i++ ) {
+    for ( i = 0; i < num_avg; i++ ) {
         aux          =   ADS1231_ReadRawData ( myNewRawData, 10 );
         myAuxData   +=   myNewRawData->myRawValue;
         wait(1);
     }
 
-    myNewRawData->myRawValue    =    ( float )( myAuxData / myTime );
+    myNewRawData->myRawValue    =    ( float )( myAuxData / num_avg );
 
     // Turn it into mass
     myCalculatedMass     =   ADS1231_CalculateMass ( myNewRawData, myCalibratedMass, myScaleCalibratedMass );
