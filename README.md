@@ -22,11 +22,11 @@ All helper scripts are placed in _scripts_ directory.
 * To flash firmware, it depends on your programmer:
     * __ST-Link__: use the ```scripts/flash.sh```
     which commands with the ST-Flash software.
-    ![](doc/stlink2.jpg)
+    ![](documents/stlink2.jpg)
 
     * __SEGGER's J-Link V2__: use the ```scripts/j-flash.sh```
     which commands with the SEGGER's J-Flash software.
-    ![](doc/segger.jpg)
+    ![](documents/segger.jpg)
 
 
 # Experiment
