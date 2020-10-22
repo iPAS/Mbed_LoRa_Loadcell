@@ -1,0 +1,135 @@
+ADS1232
+ADS1232 fail on power-down
+ADS1232 fail on reset
+ADS1232: please remove the calibrated mass before calibration ...5 4 3 2 1 [WIP].
+ADS1232: .myRawValue_WithoutCalibratedMass > 8404676.000000
+ADS1232: please put a calibrated mass 100.0g on the scale ...10 9 8 7 6 5 4 3 2 1 [WIP].
+ADS1232: .myRawValue_WithCalibratedMass > 9056486.000000
+ADS1232: please remove the calibrated mass before taring ...5 4 3 2 1 [WIP].
+ADS1232: .myRawValue_TareWeight > -0.137695
+----------------------------------------
+[1] ADS1232: raw=8403862 volt=19.567mV mass=0.013g
+[2] ADS1232: raw=8403489 volt=19.566mV mass=-0.044g
+[3] ADS1232: raw=8403870 volt=19.567mV mass=0.014g
+[4] ADS1232: raw=8403680 volt=19.566mV mass=-0.015g
+[5] ADS1232: raw=8403835 volt=19.567mV mass=0.009g
+[6] ADS1232: raw=8403890 volt=19.567mV mass=0.017g
+[7] ADS1232: raw=8403412 volt=19.566mV mass=-0.056g
+[8] ADS1232: raw=8403920 volt=19.567mV mass=0.022g
+[9] ADS1232: raw=8403554 volt=19.566mV mass=-0.034g
+[10] ADS1232: raw=8403580 volt=19.566mV mass=-0.030g
+[11] ADS1232: raw=8403323 volt=19.566mV mass=-0.070g
+[12] ADS1232: raw=8403681 volt=19.566mV mass=-0.015g
+[13] ADS1232: raw=8403746 volt=19.566mV mass=-0.005g
+[14] ADS1232: raw=8403745 volt=19.566mV mass=-0.005g
+[15] ADS1232: raw=8403608 volt=19.566mV mass=-0.026g
+[16] ADS1232: raw=8403156 volt=19.565mV mass=-0.095g
+[17] ADS1232: raw=8403073 volt=19.565mV mass=-0.108g
+[18] ADS1232: raw=8402766 volt=19.564mV mass=-0.155g
+[19] ADS1232: raw=8403075 volt=19.565mV mass=-0.108g
+[20] ADS1232: raw=8402565 volt=19.564mV mass=-0.186g
+----------------------------------------
+[1] ADS1232: raw=9055855 volt=21.085mV mass=100.041g
+[2] ADS1232: raw=9055579 volt=21.084mV mass=99.999g
+[3] ADS1232: raw=9056115 volt=21.085mV mass=100.081g
+[4] ADS1232: raw=9055619 volt=21.084mV mass=100.005g
+[5] ADS1232: raw=9055931 volt=21.085mV mass=100.053g
+[6] ADS1232: raw=9055950 volt=21.085mV mass=100.056g
+[7] ADS1232: raw=9056209 volt=21.086mV mass=100.095g
+[8] ADS1232: raw=9056690 volt=21.087mV mass=100.169g
+[9] ADS1232: raw=9057151 volt=21.088mV mass=100.240g
+[10] ADS1232: raw=9057093 volt=21.088mV mass=100.231g
+[11] ADS1232: raw=9057091 volt=21.088mV mass=100.231g
+[12] ADS1232: raw=9056198 volt=21.086mV mass=100.094g
+[13] ADS1232: raw=9056083 volt=21.085mV mass=100.076g
+[14] ADS1232: raw=9056564 volt=21.086mV mass=100.150g
+[15] ADS1232: raw=9056621 volt=21.087mV mass=100.158g
+[16] ADS1232: raw=9056175 volt=21.086mV mass=100.090g
+[17] ADS1232: raw=9056718 volt=21.087mV mass=100.173g
+[18] ADS1232: raw=9056369 volt=21.086mV mass=100.120g
+[19] ADS1232: raw=9056675 volt=21.087mV mass=100.167g
+[20] ADS1232: raw=9056746 volt=21.087mV mass=100.178g
+----------------------------------------
+[1] ADS1232: raw=8730658 volt=20.328mV mass=50.150g
+[2] ADS1232: raw=8732012 volt=20.331mV mass=50.357g
+[3] ADS1232: raw=8732197 volt=20.331mV mass=50.386g
+[4] ADS1232: raw=8732127 volt=20.331mV mass=50.375g
+[5] ADS1232: raw=8731440 volt=20.329mV mass=50.270g
+[6] ADS1232: raw=8731336 volt=20.329mV mass=50.254g
+[7] ADS1232: raw=8731017 volt=20.328mV mass=50.205g
+[8] ADS1232: raw=8731429 volt=20.329mV mass=50.268g
+[9] ADS1232: raw=8733001 volt=20.333mV mass=50.509g
+[10] ADS1232: raw=8732294 volt=20.331mV mass=50.401g
+[11] ADS1232: raw=8732701 volt=20.332mV mass=50.463g
+[12] ADS1232: raw=8732448 volt=20.332mV mass=50.424g
+[13] ADS1232: raw=8732433 volt=20.332mV mass=50.422g
+[14] ADS1232: raw=8732049 volt=20.331mV mass=50.363g
+[15] ADS1232: raw=8732417 volt=20.332mV mass=50.419g
+[16] ADS1232: raw=8732159 volt=20.331mV mass=50.380g
+[17] ADS1232: raw=8732189 volt=20.331mV mass=50.384g
+[18] ADS1232: raw=8733234 volt=20.334mV mass=50.545g
+[19] ADS1232: raw=8732962 volt=20.333mV mass=50.503g
+[20] ADS1232: raw=8732797 volt=20.333mV mass=50.478g
+----------------------------------------
+[1] ADS1232: raw=8536952 volt=19.877mV mass=20.431g
+[2] ADS1232: raw=8538021 volt=19.879mV mass=20.595g
+[3] ADS1232: raw=8537510 volt=19.878mV mass=20.517g
+[4] ADS1232: raw=8537119 volt=19.877mV mass=20.457g
+[5] ADS1232: raw=8537634 volt=19.878mV mass=20.536g
+[6] ADS1232: raw=8538039 volt=19.879mV mass=20.598g
+[7] ADS1232: raw=8537487 volt=19.878mV mass=20.513g
+[8] ADS1232: raw=8538353 volt=19.880mV mass=20.646g
+[9] ADS1232: raw=8537980 volt=19.879mV mass=20.589g
+[10] ADS1232: raw=8537636 volt=19.878mV mass=20.536g
+[11] ADS1232: raw=8537638 volt=19.878mV mass=20.537g
+[12] ADS1232: raw=8537717 volt=19.878mV mass=20.549g
+[13] ADS1232: raw=8538292 volt=19.880mV mass=20.637g
+[14] ADS1232: raw=8537445 volt=19.878mV mass=20.507g
+[15] ADS1232: raw=8538290 volt=19.880mV mass=20.637g
+[16] ADS1232: raw=8538490 volt=19.880mV mass=20.667g
+[17] ADS1232: raw=8537961 volt=19.879mV mass=20.586g
+[18] ADS1232: raw=8538070 volt=19.879mV mass=20.603g
+[19] ADS1232: raw=8538019 volt=19.879mV mass=20.595g
+[20] ADS1232: raw=8537783 volt=19.879mV mass=20.559g
+----------------------------------------
+[1] ADS1232: raw=8471830 volt=19.725mV mass=10.440g
+[2] ADS1232: raw=8472072 volt=19.726mV mass=10.478g
+[3] ADS1232: raw=8471809 volt=19.725mV mass=10.437g
+[4] ADS1232: raw=8471855 volt=19.725mV mass=10.444g
+[5] ADS1232: raw=8471736 volt=19.725mV mass=10.426g
+[6] ADS1232: raw=8472071 volt=19.726mV mass=10.477g
+[7] ADS1232: raw=8472873 volt=19.727mV mass=10.600g
+[8] ADS1232: raw=8473121 volt=19.728mV mass=10.639g
+[9] ADS1232: raw=8473023 volt=19.728mV mass=10.623g
+[10] ADS1232: raw=8473005 volt=19.728mV mass=10.621g
+[11] ADS1232: raw=8472997 volt=19.728mV mass=10.620g
+[12] ADS1232: raw=8473040 volt=19.728mV mass=10.626g
+[13] ADS1232: raw=8473429 volt=19.729mV mass=10.686g
+[14] ADS1232: raw=8473424 volt=19.729mV mass=10.685g
+[15] ADS1232: raw=8473285 volt=19.728mV mass=10.664g
+[16] ADS1232: raw=8473440 volt=19.729mV mass=10.688g
+[17] ADS1232: raw=8472920 volt=19.728mV mass=10.608g
+[18] ADS1232: raw=8473324 volt=19.728mV mass=10.670g
+[19] ADS1232: raw=8473814 volt=19.730mV mass=10.745g
+[20] ADS1232: raw=8473816 volt=19.730mV mass=10.745g
+----------------------------------------
+[1] ADS1232: raw=8441012 volt=19.653mV mass=5.712g
+[2] ADS1232: raw=8441137 volt=19.654mV mass=5.732g
+[3] ADS1232: raw=8441442 volt=19.654mV mass=5.778g
+[4] ADS1232: raw=8441212 volt=19.654mV mass=5.743g
+[5] ADS1232: raw=8440622 volt=19.652mV mass=5.653g
+[6] ADS1232: raw=8440497 volt=19.652mV mass=5.633g
+[7] ADS1232: raw=8440752 volt=19.653mV mass=5.672g
+[8] ADS1232: raw=8440687 volt=19.653mV mass=5.662g
+[9] ADS1232: raw=8441192 volt=19.654mV mass=5.740g
+[10] ADS1232: raw=8440769 volt=19.653mV mass=5.675g
+[11] ADS1232: raw=8440964 volt=19.653mV mass=5.705g
+[12] ADS1232: raw=8440626 volt=19.652mV mass=5.653g
+[13] ADS1232: raw=8440938 volt=19.653mV mass=5.701g
+[14] ADS1232: raw=8441341 volt=19.654mV mass=5.763g
+[15] ADS1232: raw=8440703 volt=19.653mV mass=5.665g
+[16] ADS1232: raw=8440838 volt=19.653mV mass=5.686g
+[17] ADS1232: raw=8440583 volt=19.652mV mass=5.647g
+[18] ADS1232: raw=8440411 volt=19.652mV mass=5.620g
+[19] ADS1232: raw=8440837 volt=19.653mV mass=5.686g
+[20] ADS1232: raw=8440655 volt=19.652mV mass=5.658g
