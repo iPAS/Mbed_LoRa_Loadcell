@@ -14,6 +14,6 @@ Makefile
 GettingStarted.html
 
 .lock/
-
+.ipynb_checkpoints/
 *.log
 
