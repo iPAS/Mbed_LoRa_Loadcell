@@ -72,11 +72,12 @@ static void on_uart_receive(void)
  ******************************************************************************/
 #ifdef __HX711__
 
+#define HX711_CAL_RAW       346209  // of the weight 100g
+#define HX711_CAL_OFFSET    11286  // raw, without weight
+
 #define HX711_PGA 64
 #define HX711_VREF 5.
-#define HX711_CAL_OFFSET    -7800  // raw, without weight
 #define HX711_CAL_WEIGHT    100.  // 100g
-#define HX711_CAL_RAW       326800  // of the weight 100g
 #define HX711_CAL_SCALE     (HX711_CAL_WEIGHT / (float)(HX711_CAL_RAW - HX711_CAL_OFFSET))
 Hx711 loadcell_hx711(P_8, P_9, HX711_CAL_OFFSET, HX711_CAL_SCALE, HX711_PGA);  // Hx711(PinName pin_sck, PinName pin_dt, int offset, float scale, uint8_t gain = 128)
 // Hx711 loadcell_hx711(P_8, P_9, 25950, -0.0046522447, HX711_PGA);  // Hx711(PinName pin_sck, PinName pin_dt, int offset, float scale, uint8_t gain = 128)
@@ -227,11 +228,12 @@ void ads1232_init(void)
  ******************************************************************************/
 #ifdef __ADS1220__
 
+#define ADS1220_CAL_RAW       342374  // of the weight 100g
+#define ADS1220_CAL_OFFSET    14806  // raw, without weight
+
 #define ADS1220_PGA 128
-#define ADS1220_VREF 5. 
-#define ADS1220_CAL_OFFSET    -5500  // raw, without weight
+#define ADS1220_VREF 5.
 #define ADS1220_CAL_WEIGHT    100.  // 100g
-#define ADS1220_CAL_RAW       320500  // of the weight 100g
 #define ADS1220_CAL_SCALE     (ADS1220_CAL_WEIGHT / (float)(ADS1220_CAL_RAW - ADS1220_CAL_OFFSET))
 ADS1220 loadcell_ads1220(P_13, P_12, P_14, P_15);  //(PinName mosi, PinName miso, PinName sclk, PinName cs)
 InterruptIn pin_drdy(P_20);
