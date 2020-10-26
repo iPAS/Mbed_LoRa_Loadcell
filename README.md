@@ -31,7 +31,7 @@ All helper scripts are placed in _scripts_ directory.
 
 # Experiment
 
-[The result](experiments/adcs_hx711_ads1232_ads1220_precision_test.ipynb)
+[The result](experiment/adcs_hx711_ads1232_ads1220_precision_test.ipynb)
 
 
 # Notes
