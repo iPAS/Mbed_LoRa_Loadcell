@@ -7,7 +7,7 @@ ADS1232: please put a calibrated mass 100.0g on the scale ...10 9 8 7 6 5 4 3 2 
 ADS1232: .myRawValue_WithCalibratedMass > 9056486.000000
 ADS1232: please remove the calibrated mass before taring ...5 4 3 2 1 [WIP].
 ADS1232: .myRawValue_TareWeight > -0.137695
-----------------------------------------
+
 [1] ADS1232: raw=8403862 volt=19.567mV mass=0.013g
 [2] ADS1232: raw=8403489 volt=19.566mV mass=-0.044g
 [3] ADS1232: raw=8403870 volt=19.567mV mass=0.014g
@@ -133,3 +133,4 @@ ADS1232: .myRawValue_TareWeight > -0.137695
 [18] ADS1232: raw=8440411 volt=19.652mV mass=5.620g
 [19] ADS1232: raw=8440837 volt=19.653mV mass=5.686g
 [20] ADS1232: raw=8440655 volt=19.652mV mass=5.658g
+----------------------------------------
