@@ -12,7 +12,8 @@ Based on [Mbed platform](https://os.mbed.com/) and
 
 # Wiring Diagram
 
-![](doc/imas_cjmcu_hx711_ads1232_ads1220.png)
+[![](documents/eagle/imas_cjmcu_hx711_ads1232_ads1220.png)](documents/eagle/imas_cjmcu_hx711_ads1232_ads1220.pdf)
+* [Download (EaglePCB Schematic)](documents/eagle/imas_cjmcu_hx711_ads1232_ads1220.sch)
 
 
 # Using
@@ -20,11 +21,11 @@ Based on [Mbed platform](https://os.mbed.com/) and
 All helper scripts are placed in _scripts_ directory.
 * To compile code: ```scripts/compile.sh```
 * To flash firmware, it depends on your programmer:
-    * __ST-Link__: use the ```scripts/flash.sh```
+    * __ST-Link__: use the ```scripts/flash_stlink.sh```
     which commands with the ST-Flash software.
     ![](documents/stlink2.jpg)
 
-    * __SEGGER's J-Link V2__: use the ```scripts/j-flash.sh```
+    * __SEGGER's J-Link V2__: use the ```scripts/flash_jlink.sh```
     which commands with the SEGGER's J-Flash software.
     ![](documents/segger.jpg)
 
