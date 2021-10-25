@@ -30,6 +30,8 @@
             "platform.stdio-convert-newlines": true,
             "platform.stdio-baud-rate": 115200,
             "platform.default-serial-baud-rate": 115200,
+            "mbed-trace.enable": true,
+            "mbed-trace.max-level": "TRACE_ACTIVE_LEVEL_ALL",
             "lora.over-the-air-activation": true,
             "lora.duty-cycle-on": true,
             "lora.phy": "AS923",

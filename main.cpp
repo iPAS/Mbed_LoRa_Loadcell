@@ -10,6 +10,7 @@
 #include "ADS1220.h"
 
 #include "trace_helper.h"
+#define TRACE_GROUP "main"
 
 
 /******************************************************************************
