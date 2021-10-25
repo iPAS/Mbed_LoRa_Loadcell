@@ -5,9 +5,6 @@
 
 #include "mbed.h"
 #include "Adafruit_SSD1306.h"
-#include "Hx711.h"
-#include "ADS1231.h"
-#include "ADS1220.h"
 
 #include "trace_helper.h"
 #define TRACE_GROUP "main"
@@ -22,9 +19,18 @@
 /******************************************************************************
  * Definitions
  ******************************************************************************/
+#ifdef MBED_CONF_APP_ADC_SELECTED
+    #if MBED_CONF_APP_ADC_SELECTED == 0
+    #define __HX711__
+    #elif MBED_CONF_APP_ADC_SELECTED == 1
+    #define __ADS1232__
+    #elif MBED_CONF_APP_ADC_SELECTED == 2
+    #define __ADS1220__
+    #endif
+#else
 #define __HX711__
-// #define __ADS1232__
-// #define __ADS1220__
+#endif
+
 
 #define TEST_AMOUNT 20
 #define LSB_SIZE(PGA, VREF) ((VREF/PGA) / (((long int)1<<23)))
@@ -78,6 +84,8 @@ Adafruit_SSD1306_I2c gOled2(gI2C, P_5, SSD_I2C_ADDRESS, 64, 128);
  ******************************************************************************/
 #ifdef __HX711__
 
+#include "Hx711.h"
+
 #define HX711_CAL_RAW       346209  // of the weight 100g
 #define HX711_CAL_OFFSET    11286  // raw, without weight
 
@@ -118,6 +126,8 @@ void hx711_init(void)
  * https://os.mbed.com/users/mcm/code/ADS1231/
  ******************************************************************************/
 #ifdef __ADS1232__
+
+#include "ADS1231.h"
 
 #define ADS1232_PGA 128
 #define ADS1232_VREF 5.
@@ -234,6 +244,8 @@ void ads1232_init(void)
  ******************************************************************************/
 #ifdef __ADS1220__
 
+#include "ADS1220.h"
+
 #define ADS1220_CAL_RAW       342374  // of the weight 100g
 #define ADS1220_CAL_OFFSET    14806  // raw, without weight
 
@@ -314,6 +326,33 @@ uint8_t rx_buffer[30];
  * Maximum number of retries for CONFIRMED messages before giving up
  */
 #define CONFIRMED_MSG_RETRY_COUNTER     3
+
+/**
+* This event queue is the global event queue for both the
+* application and stack. To conserve memory, the stack is designed to run
+* in the same thread as the application and the application is responsible for
+* providing an event queue to the stack that will be used for ISR deferment as
+* well as application information event queuing.
+*/
+static EventQueue ev_queue(MAX_NUMBER_OF_EVENTS *EVENTS_EVENT_SIZE);
+
+/**
+ * Event handler.
+ *
+ * This will be passed to the LoRaWAN stack to queue events for the
+ * application which in turn drive the application.
+ */
+static void lora_event_handler(lorawan_event_t event);
+
+/**
+ * Constructing Mbed LoRaWANInterface and passing it the radio object from lora_radio_helper.
+ */
+static LoRaWANInterface lorawan(radio);
+
+/**
+ * Application specific callbacks
+ */
+static lorawan_app_callbacks_t callbacks;
 
 
 /******************************************************************************

@@ -1,5 +1,10 @@
 {
     "config": {
+        "adc_selected": {
+            "help": "ADC selection for testing (options: 0:HX711, 1:ADS1232, 2:ADS1220)",
+            "value": 0
+        },
+
         "lora-radio": {
             "help": "Which radio to use (options: SX126X, SX1272, SX1276) -- See config/ dir for example configs",
             "value": "SX1276"
