@@ -12,6 +12,8 @@
 #include "trace_helper.h"
 #define TRACE_GROUP "main"
 
+#include "lora_radio_helper.h"
+
 
 /******************************************************************************
  * Definitions
