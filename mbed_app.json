@@ -245,7 +245,7 @@
         },
 
         "IM880B": {
-            "main_stack_size":      4096,
+            "main_stack_size":      8192,
             "lora-radio":          "SX1272",
             "lora-spi-mosi":       "SPI_RF_MOSI",
             "lora-spi-miso":       "SPI_RF_MISO",

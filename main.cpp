@@ -4,7 +4,11 @@
  */
 
 #include "mbed.h"
+
 #include "Adafruit_SSD1306.h"
+#include "Hx711.h"
+#include "ADS1231.h"
+#include "ADS1220.h"
 
 #include "trace_helper.h"
 #define TRACE_GROUP "main"
@@ -31,17 +35,30 @@
 #define __HX711__
 #endif
 
+// #define __OLED__  // Comment me to blank the OLED
+
+#define BLINKING_RATE_MS 1000
+
 
 #define TEST_AMOUNT 20
 #define LSB_SIZE(PGA, VREF) ((VREF/PGA) / (((long int)1<<23)))
 
-// Blinking rate in milliseconds
-#define BLINKING_RATE_MS 1000
+
+/******************************************************************************
+ * LED
+ *
+ ******************************************************************************/
 DigitalOut led(LED3);  // Initialise the digital pin LED1 as an output
 volatile static uint16_t sample_count = 0;
 
-// SSD1306 adapted from Adafruit's library
-// https://os.mbed.com/users/nkhorman/code/Adafruit_GFX/
+
+/******************************************************************************
+ * OLED, SSD1306 adapted from Adafruit's library
+ *
+ * https://os.mbed.com/users/nkhorman/code/Adafruit_GFX/
+ ******************************************************************************/
+#ifdef __OLED__
+
 class I2CPreInit : public I2C  // an I2C sub-class that provides a constructed default
 {
   public:
@@ -54,9 +71,15 @@ class I2CPreInit : public I2C  // an I2C sub-class that provides a constructed d
 I2C                  gI2C(I2C_SDA, I2C_SCL);
 Adafruit_SSD1306_I2c gOled2(gI2C, P_5, SSD_I2C_ADDRESS, 64, 128);
 
+#endif
 
-// https://os.mbed.com/handbook/Serial
-// https://os.mbed.com/docs/mbed-os/v5.15/apis/serial.html
+
+/******************************************************************************
+ * UART
+ * 
+ * https://os.mbed.com/handbook/Serial
+ * https://os.mbed.com/docs/mbed-os/v5.15/apis/serial.html
+ ******************************************************************************/
 //Serial uart(UART_TX, UART_RX, NULL, 115200);
 //#ifdef UART_INTR
 //static void on_uart_receive(void)
@@ -83,8 +106,6 @@ Adafruit_SSD1306_I2c gOled2(gI2C, P_5, SSD_I2C_ADDRESS, 64, 128);
  * https://www.thaieasyelec.com/media/wysiwyg/blog/30.png
  ******************************************************************************/
 #ifdef __HX711__
-
-#include "Hx711.h"
 
 #define HX711_CAL_RAW       346209  // of the weight 100g
 #define HX711_CAL_OFFSET    11286  // raw, without weight
@@ -127,8 +148,6 @@ void hx711_init(void)
  ******************************************************************************/
 #ifdef __ADS1232__
 
-#include "ADS1231.h"
-
 #define ADS1232_PGA 128
 #define ADS1232_VREF 5.
 #define ADS1232_CAL_MASS 0.100  // 100g
@@ -151,10 +170,11 @@ void ads1232_read(void) {
 
 void ads1232_init(void)
 {
+    #ifdef __OLED__
     gOled2.clearDisplay();
     gOled2.printf("Calibrating...\r\n");
     gOled2.display();
-
+    #endif
 
     ads1232_sample.num_avg = 1;
     uint8_t num_avg_cal = 4;
@@ -185,8 +205,10 @@ void ads1232_init(void)
 
     int i;
     tr_debug("ADS1232: please remove the calibrated mass before calibration ...");
+    #ifdef __OLED__
     gOled2.printf("Remove mass...\r\n");
     gOled2.display();
+    #endif
     for (i = 5; i > 0; i--)
     {
         wait(1);
@@ -199,8 +221,10 @@ void ads1232_init(void)
     tr_debug("ADS1232: .myRawValue_WithoutCalibratedMass > %f\r\n", ads1232_sample.count.myRawValue_WithoutCalibratedMass);
 
     tr_debug("ADS1232: please put a calibrated mass %.1fg on the scale ...", ADS1232_CAL_MASS * 1000);
+    #ifdef __OLED__
     gOled2.printf("Put mass...\r\n");
     gOled2.display();
+    #endif
     for (i = 10; i > 0; i--)
     {
         wait(1);
@@ -213,8 +237,10 @@ void ads1232_init(void)
     tr_debug("ADS1232: .myRawValue_WithCalibratedMass > %f\r\n", ads1232_sample.count.myRawValue_WithCalibratedMass);
 
     tr_debug("ADS1232: please remove the calibrated mass before taring ...");
+    #ifdef __OLED__
     gOled2.printf("Remove mass again...\r\n");
     gOled2.display();
+    #endif
     for (i = 5; i > 0; i--)
     {
         wait(1);
@@ -243,8 +269,6 @@ void ads1232_init(void)
  * https://os.mbed.com/users/sandeepmalladi/code/WeightScale//file/58df937cd05d/main.cpp/
  ******************************************************************************/
 #ifdef __ADS1220__
-
-#include "ADS1220.h"
 
 #define ADS1220_CAL_RAW       342374  // of the weight 100g
 #define ADS1220_CAL_OFFSET    14806  // raw, without weight
@@ -299,8 +323,6 @@ void ads1220_read(void)
 /******************************************************************************
  * LoRaWAN
  *
- * https://os.mbed.com/users/sandeepmalladi/code/ADS1220/
- * https://os.mbed.com/users/sandeepmalladi/code/WeightScale//file/58df937cd05d/main.cpp/
  ******************************************************************************/
 using namespace events;
 
@@ -368,9 +390,11 @@ int main()
 
     ThisThread::sleep_for(1000);  // Delay for showing splash
 
+    #ifdef __OLED__
     gOled2.clearDisplay();
     gOled2.printf("%ux%u OLED Display\r\n", gOled2.width(), gOled2.height());
     gOled2.display();
+    #endif
     ThisThread::sleep_for(1000);
 
     //#ifdef UART_INTR
@@ -427,16 +451,21 @@ int main()
         else
         if (++sample_count > TEST_AMOUNT)
         {
+            #ifdef __OLED__
             gOled2.printf("\r\n   raw:%.1f\r\n", raw/TEST_AMOUNT);
             gOled2.printf("   -- Finish --  \r\n");
             gOled2.display();
+            #endif
             sample_count++;
+
             continue;
         }
 
 
+        #ifdef __OLED__
         gOled2.clearDisplay();
         gOled2.setTextCursor(0, 0);
+        #endif
 
 
         #ifdef __HX711__
@@ -446,7 +475,10 @@ int main()
             hx711_sample.mass
             );
         raw += hx711_sample.raw;
+        #ifdef __OLED__
         gOled2.printf("%u:HX711 %.2fg\r\n", sample_count, hx711_sample.mass);
+        gOled2.display();
+        #endif
         #endif
 
 
@@ -463,7 +495,10 @@ int main()
                 ads1232_sample.calculated_mass.myMass  // ADS1231::ADS1231_SCALE_g
                 );
             raw += ads1232_sample.count.myRawValue;
+            #ifdef __OLED__
             gOled2.printf("%u:1232 %.2fg\r\n", sample_count, ads1232_sample.calculated_mass.myMass);
+            gOled2.display();
+            #endif
         }
         #endif
 
@@ -478,10 +513,11 @@ int main()
                 ads1220_sample.mass
                 );
             raw += ads1220_sample.raw;
+            #ifdef __OLED__
             gOled2.printf("%u:1220 %.2fg\r\n", sample_count, ads1220_sample.mass);
+            gOled2.display();
+            #endif
         }
         #endif
-
-        gOled2.display();
     }
 }
