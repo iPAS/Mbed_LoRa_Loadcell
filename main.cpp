@@ -9,6 +9,8 @@
 #include "ADS1231.h"
 #include "ADS1220.h"
 
+#include "trace_helper.h"
+
 
 /******************************************************************************
  * Definitions
