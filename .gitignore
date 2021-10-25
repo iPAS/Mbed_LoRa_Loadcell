@@ -17,3 +17,6 @@ GettingStarted.html
 .ipynb_checkpoints/
 *.log
 
+
+mbed-semtech-lora-rf-drivers/
+
