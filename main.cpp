@@ -14,6 +14,10 @@
 
 #include "lora_radio_helper.h"
 
+#include "lorawan/LoRaWANInterface.h"
+#include "lorawan/system/lorawan_data_structures.h"
+#include "events/EventQueue.h"
+
 
 /******************************************************************************
  * Definitions
@@ -278,6 +282,38 @@ void ads1220_read(void)
 }
 
 #endif
+
+
+/******************************************************************************
+ * LoRaWAN
+ *
+ * https://os.mbed.com/users/sandeepmalladi/code/ADS1220/
+ * https://os.mbed.com/users/sandeepmalladi/code/WeightScale//file/58df937cd05d/main.cpp/
+ ******************************************************************************/
+using namespace events;
+
+// Max payload size can be LORAMAC_PHY_MAXPAYLOAD.
+// This example only communicates with much shorter messages (<30 bytes).
+// If longer messages are used, these buffers must be changed accordingly.
+uint8_t tx_buffer[30];
+uint8_t rx_buffer[30];
+
+/*
+ * Sets up an application dependent transmission timer in ms. Used only when Duty Cycling is off for testing
+ */
+#define TX_TIMER                        10000
+
+/**
+ * Maximum number of events for the event queue.
+ * 10 is the safe number for the stack events, however, if application
+ * also uses the queue for whatever purposes, this number should be increased.
+ */
+#define MAX_NUMBER_OF_EVENTS            10
+
+/**
+ * Maximum number of retries for CONFIRMED messages before giving up
+ */
+#define CONFIRMED_MSG_RETRY_COUNTER     3
 
 
 /******************************************************************************
