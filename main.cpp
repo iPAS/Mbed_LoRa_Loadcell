@@ -37,7 +37,6 @@ class I2CPreInit : public I2C  // an I2C sub-class that provides a constructed d
         start();
     };
 };
-
 //I2CPreInit
 I2C                  gI2C(I2C_SDA, I2C_SCL);
 Adafruit_SSD1306_I2c gOled2(gI2C, P_5, SSD_I2C_ADDRESS, 64, 128);
@@ -45,22 +44,20 @@ Adafruit_SSD1306_I2c gOled2(gI2C, P_5, SSD_I2C_ADDRESS, 64, 128);
 
 // https://os.mbed.com/handbook/Serial
 // https://os.mbed.com/docs/mbed-os/v5.15/apis/serial.html
-Serial uart(UART_TX, UART_RX, NULL, 115200);
-
-// #define UART_INTR
-#ifdef UART_INTR
-static void on_uart_receive(void)
-{
-    char buf[10];
-    while (uart.readable())
-    {
-        // __disable_irq();
-        uart.read(buf, 10);
-        // __enable_irq();
-    }
-    sample_count = 0;
-}
-#endif
+//Serial uart(UART_TX, UART_RX, NULL, 115200);
+//#ifdef UART_INTR
+//static void on_uart_receive(void)
+//{
+//    char buf[10];
+//    while (uart.readable())
+//    {
+//        // __disable_irq();
+//        uart.read(buf, 10);
+//        // __enable_irq();
+//    }
+//    sample_count = 0;
+//}
+//#endif
 
 
 /******************************************************************************
@@ -150,13 +147,13 @@ void ads1232_init(void)
     sts = loadcell_ads1232.ADS1231_PowerDown();
     if (sts == ADS1231::ADS1231_status_t::ADS1231_FAILURE)
     {
-        uart.printf("ADS1232 fail on power-down\r\n");
+        tr_debug("ADS1232 fail on power-down\r\n");
     }
 
     sts = loadcell_ads1232.ADS1231_Reset();
     if (sts == ADS1231::ADS1231_status_t::ADS1231_FAILURE)
     {
-        uart.printf("ADS1232 fail on reset\r\n");
+        tr_debug("ADS1232 fail on reset\r\n");
     }
     ThisThread::sleep_for(1000);
 
@@ -170,47 +167,47 @@ void ads1232_init(void)
     // aux = myWeightSensor.ADS1231_SetAutoTare ( ADS1231::ADS1231_SCALE_kg, &myData, 5 );
 
     int i;
-    uart.printf("ADS1232: please remove the calibrated mass before calibration ...");
+    tr_debug("ADS1232: please remove the calibrated mass before calibration ...");
     gOled2.printf("Remove mass...\r\n");
     gOled2.display();
     for (i = 5; i > 0; i--)
     {
         wait(1);
-        uart.printf("%d ", i);
+        tr_debug("%d ", i);
     }
     wait(1);
-    uart.printf("[WIP].\r\n");
+    tr_debug("WIP.\r\n");
 
     loadcell_ads1232.ADS1231_ReadData_WithoutMass(&ads1232_sample.count, num_avg_cal);
-    uart.printf("ADS1232: .myRawValue_WithoutCalibratedMass > %f\r\n", ads1232_sample.count.myRawValue_WithoutCalibratedMass);
+    tr_debug("ADS1232: .myRawValue_WithoutCalibratedMass > %f\r\n", ads1232_sample.count.myRawValue_WithoutCalibratedMass);
 
-    uart.printf("ADS1232: please put a calibrated mass %.1fg on the scale ...", ADS1232_CAL_MASS * 1000);
+    tr_debug("ADS1232: please put a calibrated mass %.1fg on the scale ...", ADS1232_CAL_MASS * 1000);
     gOled2.printf("Put mass...\r\n");
     gOled2.display();
     for (i = 10; i > 0; i--)
     {
         wait(1);
-        uart.printf("%d ", i);
+        tr_debug("%d ", i);
     }
     wait(1);
-    uart.printf("[WIP].\r\n");
+    tr_debug("WIP.\r\n");
 
     loadcell_ads1232.ADS1231_ReadData_WithCalibratedMass(&ads1232_sample.count, num_avg_cal);
-    uart.printf("ADS1232: .myRawValue_WithCalibratedMass > %f\r\n", ads1232_sample.count.myRawValue_WithCalibratedMass);
+    tr_debug("ADS1232: .myRawValue_WithCalibratedMass > %f\r\n", ads1232_sample.count.myRawValue_WithCalibratedMass);
 
-    uart.printf("ADS1232: please remove the calibrated mass before taring ...");
+    tr_debug("ADS1232: please remove the calibrated mass before taring ...");
     gOled2.printf("Remove mass again...\r\n");
     gOled2.display();
     for (i = 5; i > 0; i--)
     {
         wait(1);
-        uart.printf("%d ", i);
+        tr_debug("%d ", i);
     }
     wait(1);
-    uart.printf("[WIP].\r\n");
+    tr_debug("WIP.\r\n");
 
     loadcell_ads1232.ADS1231_SetAutoTare(ADS1232_CAL_MASS, ADS1231::ADS1231_SCALE_g, &ads1232_sample.count, num_avg_cal);
-    uart.printf("ADS1232: .myRawValue_TareWeight > %f\r\n", ads1232_sample.count.myRawValue_TareWeight);
+    tr_debug("ADS1232: .myRawValue_TareWeight > %f\r\n", ads1232_sample.count.myRawValue_TareWeight);
 
     // ads1232_sample.count.myRawValue_WithoutCalibratedMass = 8385827;
     // ads1232_sample.count.myRawValue_WithCalibratedMass = 8590153;  // @31g calibrated mass
@@ -285,6 +282,10 @@ void ads1220_read(void)
  ******************************************************************************/
 int main()
 {
+    // setup tracing
+    setup_trace();
+
+
     float raw = 0;
 
     ThisThread::sleep_for(1000);  // Delay for showing splash
@@ -294,9 +295,9 @@ int main()
     gOled2.display();
     ThisThread::sleep_for(1000);
 
-    #ifdef UART_INTR
-    uart.attach(&on_uart_receive, Serial::RxIrq);  // Bind with on-receiving callback function.
-    #endif
+    //#ifdef UART_INTR
+    //uart.attach(&on_uart_receive, Serial::RxIrq);  // Bind with on-receiving callback function.
+    //#endif
 
 
     #ifdef __HX711__
@@ -310,7 +311,7 @@ int main()
     #endif
 
 
-    uart.printf("----------------------------------------\r\n");
+    tr_debug("----------------------------------------\r\n");
 
     while (true) {
         led = !led;
@@ -319,6 +320,7 @@ int main()
 
         if (sample_count > TEST_AMOUNT+1)
         {
+            /*
             #if ! defined(UART_INTR)  // Clear 'sample_count' without using rx interrupt
             if (uart.readable())
             {
@@ -332,6 +334,16 @@ int main()
                 uart.printf("----------------------------------------\r\n");
             }
             #endif
+            */
+
+            // To send LoRaWAN packet
+            //
+
+                sample_count = 0;
+                raw = 0;
+                tr_debug("----------------------------------------\r\n");
+
+
             continue;
         }
         else
@@ -350,7 +362,7 @@ int main()
 
 
         #ifdef __HX711__
-        uart.printf("[%d] HX711: raw=%ld volt=%.3fmV mass=%.3fg\r\n", sample_count,
+        tr_debug("[%d] HX711: raw=%ld volt=%.3fmV mass=%.3fg\r\n", sample_count,
             hx711_sample.raw,
             hx711_sample.volt * 1000,
             hx711_sample.mass
@@ -362,10 +374,12 @@ int main()
 
         #ifdef __ADS1232__
         if (ads1232_sample.status == ADS1231::ADS1231_status_t::ADS1231_FAILURE)
-            uart.printf("ADS1232 fail on readRaw()\r\n");
+        {
+            tr_debug("ADS1232 fail on readRaw()\r\n");
+        }
         else
         {
-            uart.printf("[%d] ADS1232: raw=%ld volt=%.3fmV mass=%.3fg\r\n", sample_count,
+            tr_debug("[%d] ADS1232: raw=%ld volt=%.3fmV mass=%.3fg\r\n", sample_count,
                 ads1232_sample.count.myRawValue,
                 ads1232_sample.calculated_volt.myVoltage * 1000,
                 ads1232_sample.calculated_mass.myMass  // ADS1231::ADS1231_SCALE_g
@@ -380,7 +394,7 @@ int main()
         if (ads1220_sample.available)
         {
             ads1220_read();
-            uart.printf("[%d] ADS1220: raw=%ld volt=%.3fmV mass=%.3fg\r\n", sample_count,
+            tr_debug("[%d] ADS1220: raw=%ld volt=%.3fmV mass=%.3fg\r\n", sample_count,
                 ads1220_sample.raw,
                 ads1220_sample.volt * 1000,
                 ads1220_sample.mass
