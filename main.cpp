@@ -24,22 +24,32 @@
  * Definitions
  ******************************************************************************/
 #ifdef MBED_CONF_APP_ADC_SELECTED
-    #if MBED_CONF_APP_ADC_SELECTED == 0
-    #define __HX711__
-    #elif MBED_CONF_APP_ADC_SELECTED == 1
-    #define __ADS1232__
-    #elif MBED_CONF_APP_ADC_SELECTED == 2
-    #define __ADS1220__
-    #endif
+
+#if MBED_CONF_APP_ADC_SELECTED == 0
+#define __HX711__
+#elif MBED_CONF_APP_ADC_SELECTED == 1
+#define __ADS1232__
+#elif MBED_CONF_APP_ADC_SELECTED == 2
+#define __ADS1220__
+#endif
+
 #else
 #define __HX711__
 #endif
 
-// #define __OLED__  // Comment me to blank the OLED
+
+#ifdef MBED_CONF_APP_OLED_ENABLE
+
+#if MBED_CONF_APP_OLED_ENABLE == 1
+#define __OLED__
+#endif
+
+#else
+#define __OLED__  // Comment me to blank the OLED
+#endif
+
 
 #define BLINKING_RATE_MS 1000
-
-
 #define TEST_AMOUNT 20
 #define LSB_SIZE(PGA, VREF) ((VREF/PGA) / (((long int)1<<23)))
 
