@@ -21,13 +21,13 @@
  ******************************************************************************/
 #ifdef MBED_CONF_APP_ADC_SELECTED
 
-#if MBED_CONF_APP_ADC_SELECTED == 0
-#define __HX711__
-#elif MBED_CONF_APP_ADC_SELECTED == 1
-#define __ADS1232__
-#elif MBED_CONF_APP_ADC_SELECTED == 2
-#define __ADS1220__
-#endif
+    #if MBED_CONF_APP_ADC_SELECTED == 0
+    #define __HX711__
+    #elif MBED_CONF_APP_ADC_SELECTED == 1
+    #define __ADS1232__
+    #elif MBED_CONF_APP_ADC_SELECTED == 2
+    #define __ADS1220__
+    #endif
 
 #else
 #define __HX711__
@@ -36,9 +36,9 @@
 
 #ifdef MBED_CONF_APP_OLED_ENABLE
 
-#if MBED_CONF_APP_OLED_ENABLE == 1
-#define __OLED__
-#endif
+    #if MBED_CONF_APP_OLED_ENABLE == 1
+    #define __OLED__
+    #endif
 
 #else
 #define __OLED__  // Comment me to blank the OLED
@@ -331,8 +331,11 @@ void ads1220_read(void)
  ******************************************************************************/
 int main()
 {
-    // setup tracing
+    // Setup tracing
     setup_trace();
+
+    // Initialize lorawan & sending
+    lrw_init();
 
 
     float raw = 0;
