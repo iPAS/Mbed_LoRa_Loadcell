@@ -1,10 +1,20 @@
 {
     "config": {
+        "adc_selected": {
+            "help": "ADC selection for testing (options: 0:HX711, 1:ADS1232, 2:ADS1220)",
+            "value": 0
+        },
+        "oled_enable": {
+            "help": "Enable OLED module (options: true, false)",
+            "value": false
+        },
+
         "lora-radio": {
             "help": "Which radio to use (options: SX126X, SX1272, SX1276) -- See config/ dir for example configs",
             "value": "SX1276"
         },
         "main_stack_size":     { "value": 4096 },
+        "thread_stack_size":   { "value": 4096 },
 
         "lora-spi-mosi":       { "value": "NC" },
         "lora-spi-miso":       { "value": "NC" },
@@ -240,7 +250,7 @@
         },
 
         "IM880B": {
-            "main_stack_size":      4096,
+            "main_stack_size":      2048,
             "lora-radio":          "SX1272",
             "lora-spi-mosi":       "SPI_RF_MOSI",
             "lora-spi-miso":       "SPI_RF_MISO",
@@ -284,6 +294,11 @@
             "lora-tcxo":           "NC"
         }
     },
-    "macros": ["MBEDTLS_USER_CONFIG_FILE=\"mbedtls_lora_config.h\""]
+    "macros": [
+        "MBEDTLS_USER_CONFIG_FILE=\"mbedtls_lora_config.h\"",
+        "MBED_HEAP_STATS_ENABLED=1",
+        "MBED_STACK_STATS_ENABLED=1",
+        "MBED_MEM_TRACING_ENABLED=1"
+    ]
 }
 
