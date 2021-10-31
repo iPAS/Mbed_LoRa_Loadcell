@@ -41,3 +41,14 @@ All helper scripts are placed in _scripts_ directory.
 
 * After ```mbed import``` a library into the project, 
 please command ```mbed deploy``` consecutively.
+
+* [Tracking Memory Usage in Mbed-OS](https://os.mbed.com/blog/entry/Tracking-memory-usage-with-Mbed-OS/)
+
+## LoRaWAN & Gateway
+
+* [SSH to the Gateway](https://docs.rakwireless.com/Product-Categories/WisGate/RAK7243C/Quickstart/#accessing-your-gateway)
+* [Connect Gateway to the Internet](https://docs.rakwireless.com/Product-Categories/WisGate/RAK7243C/Quickstart/#accessing-the-internet)
+* [Using Built-in ChirpStack](https://docs.rakwireless.com/Product-Categories/WisGate/RAK7243C/Quickstart/#connect-the-gateway-with-chirpstack)
+* [Firmware of the node](https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-lorawan/)
+    * Edit the configuration in _mbed_app.json_ file.
+
